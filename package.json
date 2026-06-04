@@ -1,0 +1,30 @@
+{
+  "name": "openbudget",
+  "version": "1.0.0",
+  "private": true,
+  "description": "OpenBudget — a self-hosted, open-source YNAB alternative. Read-only bank sync via SimpleFIN (~$15/yr), envelope budgeting, and an AES-256-GCM encrypted credential vault.",
+  "license": "MIT",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "sync": "node scripts/sync.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.105.1",
+    "lucide-react": "^1.17.0",
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.6.0"
+  }
+}
