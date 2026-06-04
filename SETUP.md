@@ -52,15 +52,14 @@ OpenBudget signs you in with magic links, sent via Resend.
    ```bash
    cp .env.example .env.local
    ```
-2. Generate two secrets (run twice, use a different output for each):
+2. Generate a session secret:
    ```bash
    openssl rand -hex 32   # use for SESSION_SECRET
-   openssl rand -hex 32   # use for BUDGET_VAULT_KEY
    ```
 3. Edit `.env.local` and set:
    - `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (from Step 2)
    - `ALLOWED_EMAILS` — comma-separated list of who can log in (e.g. `you@example.com,partner@example.com`). **If this is empty, nobody can sign in.**
-   - `SESSION_SECRET` and `BUDGET_VAULT_KEY` (the two `openssl` outputs)
+   - `SESSION_SECRET` (the `openssl` output)
    - `RESEND_API_KEY` and `MAGIC_FROM_EMAIL` (from Step 3)
 
 Leave `SIMPLEFIN_ACCESS_URL` blank for now — you'll fill it in Step 5.
@@ -95,7 +94,6 @@ Leave `SIMPLEFIN_ACCESS_URL` blank for now — you'll fill it in Step 5.
    - `SESSION_SECRET`
    - `RESEND_API_KEY`
    - `MAGIC_FROM_EMAIL`
-   - `BUDGET_VAULT_KEY` (optional but recommended — enables the vault)
    - `NEXT_PUBLIC_SITE_URL` — set this to your Vercel URL once you know it (e.g. `https://your-app.vercel.app`)
 3. Deploy. When it's live, visit **`/setup`** on your URL to confirm every required variable is green.
 4. Go to **`/login`**, enter an allowlisted email, click the magic link, and you're in.
@@ -106,11 +104,9 @@ Leave `SIMPLEFIN_ACCESS_URL` blank for now — you'll fill it in Step 5.
 
 - Set your envelopes and what's coming in this month; allocate until **To Be Budgeted** is zero.
 - As the sync runs, new charges show up under **Transactions** to assign.
-- *(Optional)* Use the **Vault** to store your own bank logins, encrypted, as private reference.
 
 ### Troubleshooting
 
 - **Magic link never arrives:** check `RESEND_API_KEY` and that your `MAGIC_FROM_EMAIL` domain is verified (or that you're emailing the address you signed up to Resend with). For local testing set `BUDGET_DEV_MAGIC_LINK=true` and the link comes back in the API response.
-- **"Vault locked":** set `BUDGET_VAULT_KEY` and redeploy.
 - **No transactions:** make sure you ran `npm run sync` and that `SIMPLEFIN_ACCESS_URL` is set where you run it. Add `--days 90` to backfill more history: `npm run sync -- sync --days 90`.
 - **Can't sign in:** confirm your email is in `ALLOWED_EMAILS` (comma-separated, no spaces issues) and redeploy after changing it.

@@ -47,12 +47,6 @@ export default function SetupPage() {
       hint: "Resend API key so magic-link emails can be sent.",
     },
     {
-      label: "BUDGET_VAULT_KEY",
-      ok: present("BUDGET_VAULT_KEY"),
-      required: false,
-      hint: "AES-256 key for the credential vault. Optional — vault is locked without it.",
-    },
-    {
       label: "SIMPLEFIN_ACCESS_URL",
       ok: present("SIMPLEFIN_ACCESS_URL"),
       required: false,

@@ -94,22 +94,6 @@ create table if not exists budget_todos (
 );
 
 -- ---------------------------------------------------------------------------
--- Encrypted bank-login reference vault.
--- `secret` is AES-256-GCM ciphertext ("iv:tag:ct", all base64) produced by the
--- app using BUDGET_VAULT_KEY. The key NEVER lives in this database — only the
--- ciphertext does. Plaintext exists only transiently, server-side, on reveal.
--- ---------------------------------------------------------------------------
-create table if not exists budget_vault (
-  id          uuid primary key default gen_random_uuid(),
-  bank_name   text not null,
-  username    text not null default '',
-  secret      text not null default '',     -- AES-256-GCM ciphertext, or '' if unset
-  notes       text not null default '',
-  created_at  timestamptz not null default now(),
-  updated_at  timestamptz not null default now()
-);
-
--- ---------------------------------------------------------------------------
 -- Single-use magic-link tokens (15-min, hashed). Raw token only lives in email.
 -- ---------------------------------------------------------------------------
 create table if not exists magic_tokens (
@@ -133,5 +117,4 @@ alter table budget_transactions enable row level security;
 alter table budget_months       enable row level security;
 alter table budget_goals        enable row level security;
 alter table budget_todos        enable row level security;
-alter table budget_vault        enable row level security;
 alter table magic_tokens        enable row level security;
