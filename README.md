@@ -31,10 +31,6 @@ YNAB is great, but it's ~$109/year and your financial data lives on their server
 - **Passwordless auth** — magic-link sign-in, locked to an email allowlist you set. Fails closed.
 - **Mobile-first UI** — built for your phone, works everywhere.
 
-## Screenshot
-
-> _Add a screenshot here after your first deploy (drop a `public/screenshot.png` and reference it)._
-
 ## How it works
 
 - **Bank data** comes only from **SimpleFIN Bridge** (`scripts/sync.mjs`). You connect your banks at SimpleFIN, get a read-only access URL, and a scheduled job pulls transactions into your Supabase `budget_*` tables. SimpleFIN credentials are read-only and scoped to the accounts you authorize.
