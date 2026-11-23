@@ -2,7 +2,7 @@
 
 Envelope budgeting you host yourself. It pulls read-only bank transactions from SimpleFIN into a Supabase project you own, so your budget lives in a database only you control.
 
-I wanted YNAB's workflow without paying ~$109 a year for it or handing my bank data to another company. SimpleFIN costs about $15 a year, and Supabase and Vercel have free tiers that cover one household.
+I wanted YNAB's workflow without paying about $109 a year for it or keeping my budget on someone else's servers. SimpleFIN costs about $15 a year, and Supabase and Vercel have free tiers that cover one household.
 
 Moved here from my private working repo in July 2026. Most of this code was written by Claude Code agents I run. I picked what got built. The private version runs my family's budget.
 
