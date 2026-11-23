@@ -1,26 +1,26 @@
-# OpenBudget — Setup
+# OpenBudget: Setup
 
-A single, linear path from zero to a working budget. No choices to make — just do each step in order. Total time: ~20–30 minutes.
+A single, linear path from zero to a working budget. No choices to make. Just do each step in order. Total time: 20 to 30 minutes.
 
 You'll create three free/cheap accounts (SimpleFIN ~$15/yr, Supabase free, Resend free, Vercel free), wire them together, and deploy.
 
 ---
 
-## Step 1 — Get a SimpleFIN bank connection (~$15/yr)
+## Step 1: Get a SimpleFIN bank connection (~$15/yr)
 
-SimpleFIN Bridge is what reads your bank transactions. It's **read-only** — it cannot move money.
+SimpleFIN Bridge is what reads your bank transactions. It's **read-only**: it cannot move money.
 
 1. Go to **https://beta-bridge.simplefin.org/** and create an account (the subscription is about $15/year).
 2. Click **Connect** and link your bank(s). Authorize the accounts you want to budget.
-3. When done, generate a **Setup Token**. It's a long base64 string. Copy it — you'll exchange it for a permanent access URL in Step 5.
+3. When done, generate a **Setup Token**. It's a long base64 string. Copy it. You'll exchange it for a permanent access URL in Step 5.
 
 > Keep the setup token private. It's one-time-use: you'll trade it for an access URL.
 
 ---
 
-## Step 2 — Create a free Supabase project and load the schema
+## Step 2: Create a free Supabase project and load the schema
 
-Supabase is your database. It's where your budget lives — in *your* account, not anyone else's.
+Supabase is your database. Your budget lives there, in *your* account.
 
 1. Go to **https://supabase.com**, sign in, and click **New project**. Pick any name, set a database password, choose a region near you. Wait ~2 minutes for it to provision.
 2. In the left sidebar, open **SQL Editor → New query**.
@@ -34,19 +34,19 @@ Supabase is your database. It's where your budget lives — in *your* account, n
 
 ---
 
-## Step 3 — Get a Resend API key (for login emails)
+## Step 3: Get a Resend API key (for login emails)
 
 OpenBudget signs you in with magic links, sent via Resend.
 
 1. Go to **https://resend.com**, sign up (free tier is plenty).
 2. Create an **API Key** → copy it. That's `RESEND_API_KEY`.
 3. **From address:**
-   - **Fastest path:** use `onboarding@resend.dev` as `MAGIC_FROM_EMAIL`. Resend's sandbox only delivers to the email you signed up with — fine if that's on your allowlist.
+   - **Fastest path:** use `onboarding@resend.dev` as `MAGIC_FROM_EMAIL`. Resend's sandbox only delivers to the email you signed up with. That's fine if that's on your allowlist.
    - **Proper path:** in Resend, **Add a Domain** you own and verify it (add the DNS records they give you). Then set `MAGIC_FROM_EMAIL` to something like `login@yourdomain.com`, which can email anyone.
 
 ---
 
-## Step 4 — Fill in your environment variables
+## Step 4: Fill in your environment variables
 
 1. Copy the template:
    ```bash
@@ -58,15 +58,15 @@ OpenBudget signs you in with magic links, sent via Resend.
    ```
 3. Edit `.env.local` and set:
    - `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (from Step 2)
-   - `ALLOWED_EMAILS` — comma-separated list of who can log in (e.g. `you@example.com,partner@example.com`). **If this is empty, nobody can sign in.**
+   - `ALLOWED_EMAILS`: comma-separated list of who can log in (e.g. `you@example.com,partner@example.com`). **If this is empty, nobody can sign in.**
    - `SESSION_SECRET` (the `openssl` output)
    - `RESEND_API_KEY` and `MAGIC_FROM_EMAIL` (from Step 3)
 
-Leave `SIMPLEFIN_ACCESS_URL` blank for now — you'll fill it in Step 5.
+Leave `SIMPLEFIN_ACCESS_URL` blank for now. You'll fill it in Step 5.
 
 ---
 
-## Step 5 — Connect SimpleFIN to your database
+## Step 5: Connect SimpleFIN to your database
 
 1. Install dependencies and exchange your setup token for a permanent access URL:
    ```bash
@@ -80,11 +80,11 @@ Leave `SIMPLEFIN_ACCESS_URL` blank for now — you'll fill it in Step 5.
    ```
    You'll see a JSON summary (accounts, transactions inserted, etc.).
 
-> **Keep this running automatically.** Schedule `npm run sync` to run a few times a day — via cron on a machine that's always on, a GitHub Actions scheduled workflow, or a Vercel Cron job hitting a small route you add. The web app does **not** need `SIMPLEFIN_ACCESS_URL`; only the sync does.
+> **Keep this running automatically.** Schedule `npm run sync` to run a few times a day: cron on a machine that's always on, a GitHub Actions scheduled workflow, or a Vercel Cron job hitting a small route you add. The web app does **not** need `SIMPLEFIN_ACCESS_URL`; only the sync does.
 
 ---
 
-## Step 6 — Deploy to Vercel
+## Step 6: Deploy to Vercel
 
 1. Push this repo to your own GitHub (or use the **Deploy with Vercel** button in the [README](./README.md), which clones it for you).
 2. In Vercel, import the project. When prompted for **Environment Variables**, add the same values from your `.env.local`:
@@ -94,7 +94,7 @@ Leave `SIMPLEFIN_ACCESS_URL` blank for now — you'll fill it in Step 5.
    - `SESSION_SECRET`
    - `RESEND_API_KEY`
    - `MAGIC_FROM_EMAIL`
-   - `NEXT_PUBLIC_SITE_URL` — set this to your Vercel URL once you know it (e.g. `https://your-app.vercel.app`)
+   - `NEXT_PUBLIC_SITE_URL`: set this to your Vercel URL once you know it (e.g. `https://your-app.vercel.app`)
 3. Deploy. When it's live, visit **`/setup`** on your URL to confirm every required variable is green.
 4. Go to **`/login`**, enter an allowlisted email, click the magic link, and you're in.
 

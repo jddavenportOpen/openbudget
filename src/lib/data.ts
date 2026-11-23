@@ -6,6 +6,7 @@ import { getSupabaseAdmin } from "@/lib/supabase";
 import type {
   Account, Envelope, Transaction, Todo, Goal, MonthRow, EnvelopeWithMath,
 } from "@/lib/types";
+import { envelopeMath, monthRange, monthTotals } from "@/lib/budget-math";
 
 export function currentMonth(): string {
   return new Date().toISOString().slice(0, 7); // YYYY-MM
@@ -49,7 +50,10 @@ export async function getTransactions(opts?: {
   if (startDate) q = q.gte("date", startDate);
   if (opts?.account) q = q.eq("account", opts.account);
   if (opts?.month) {
-    q = q.gte("date", `${opts.month}-01`).lte("date", `${opts.month}-31`);
+    // "-31" is not a valid date in a 30-day month, and Postgres rejects it, so
+    // bound the month by the first day of the next one instead.
+    const { start, nextStart } = monthRange(opts.month);
+    q = q.gte("date", start).lt("date", nextStart);
   }
   const { data } = await q;
   return (data ?? []) as Transaction[];
@@ -91,16 +95,7 @@ export async function getEnvelopesWithMath(month: string): Promise<EnvelopeWithM
     getEnvelopes(),
     getTransactions({ month, limit: 2000 }),
   ]);
-  const spentByEnv = new Map<string, number>();
-  for (const t of txns) {
-    if (!t.envelope_id) continue;
-    if (t.amount >= 0) continue; // only spending counts against an envelope
-    spentByEnv.set(t.envelope_id, (spentByEnv.get(t.envelope_id) ?? 0) + Math.abs(t.amount));
-  }
-  return envelopes.map((e) => {
-    const spent = spentByEnv.get(e.id) ?? 0;
-    return { ...e, spent, remaining: e.monthly_allocated - spent };
-  });
+  return envelopeMath(envelopes, txns);
 }
 
 /** Dashboard rollup for a month. */
@@ -113,12 +108,7 @@ export async function getDashboard(month: string) {
     getMonth(month),
   ]);
 
-  const totalAllocated = envelopes.reduce((s, e) => s + e.monthly_allocated, 0);
-  const spent = txns.filter((t) => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0);
-  const income = txns.filter((t) => t.amount > 0).reduce((s, t) => s + t.amount, 0);
-  const toBeBudgeted = mrow.available_to_budget - totalAllocated;
-  const unassigned = txns.filter((t) => t.amount < 0 && !t.envelope_id).length;
-  const needsReview = txns.filter((t) => t.needs_review).length;
+  const totals = monthTotals(mrow.available_to_budget, envelopes, txns);
 
   return {
     month,
@@ -126,12 +116,7 @@ export async function getDashboard(month: string) {
     envelopes,
     goals,
     availableToBudget: mrow.available_to_budget,
-    totalAllocated,
-    toBeBudgeted,
-    spent,
-    income,
-    unassigned,
-    needsReview,
+    ...totals,
     txnCount: txns.length,
   };
 }
